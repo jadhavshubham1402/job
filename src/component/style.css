@@ -1,0 +1,12 @@
+.custom-page {
+  border: 1px solid #ffffff;
+  background-color: #ffffff;
+  color: #000000;
+  cursor: pointer;
+}
+
+.custom-active {
+  background-color: #2b7a0b;
+  color: #ffffff;
+  cursor: pointer;
+}
