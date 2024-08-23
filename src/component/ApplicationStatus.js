@@ -35,7 +35,9 @@ const ApplicationStatus = () => {
       };
       const res = await updateOneApplicationStatus(data);
       if (res.status == 200) {
-        successToast("Login Successfully");
+        successToast("update successfully");
+        getAllApplication();
+        setModalIsOpen(false);
       }
       setLoader(false);
     } catch (error) {

@@ -63,7 +63,7 @@ const UserDetails = () => {
 
       const res = await createResume(formData);
       if (res.status == 200) {
-        successToast(res.data.message);
+        successToast("user data added successfully");
         navigate("/admin/applicationList");
       }
       setLoader(false);

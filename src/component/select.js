@@ -9,17 +9,6 @@ const SelectField = ({
   ...props
 }) => {
   const [selectedVal, setSelectedVal] = useState("");
-  useEffect(() => {
-    if (selectedVal === null) {
-      if (typeof defaultValue === "string") {
-        setSelectedVal(options.find((e) => e.value === defaultValue) || null);
-      }
-    }
-
-    if (!defaultValue) {
-      setSelectedVal(options.find((e) => e.value === defaultValue) || null);
-    }
-  }, [defaultValue, options, selectedVal]);
   return (
     <Select
       {...props}

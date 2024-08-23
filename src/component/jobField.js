@@ -1,18 +1,13 @@
+import { ErrorMessage, Field, Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { FaEye, FaEyeSlash } from "react-icons/fa6";
-import { useNavigate } from "react-router-dom";
-import LoaderComponent from "./loader";
 import {
   createJobFields,
   getJobField,
-  login,
   updateJobfields,
 } from "../service/axiosInstance";
 import { errorToast, successToast } from "../toastConfig";
-import { useDispatch, useSelector } from "react-redux";
-import { setToken, setUser } from "../redux/reducer/reducer";
+import LoaderComponent from "./loader";
 
 const JobField = () => {
   const [data, setData] = useState(null);
@@ -30,14 +25,22 @@ const JobField = () => {
   const handleLogin = async (values, { setSubmitting }) => {
     try {
       setLoader(true);
-      const data1 = {
-        id: data._id,
-        jobCategories: [...data.jobCategories, ...[values.jobCategories]],
-        jobTypes: [...data.jobTypes, ...[values.jobTypes]],
-      };
-      const res = await updateJobfields(data1);
+      let res;
+
+      if (!data) {
+        res = await createJobFields(values);
+      } else {
+        const data1 = {
+          id: data._id,
+          jobCategories: [...data.jobCategories, ...[values.jobCategories]],
+          jobTypes: [...data.jobTypes, ...[values.jobTypes]],
+        };
+        res = await updateJobfields(data1);
+      }
+
       if (res.status == 200) {
         successToast(res.data.message);
+        getAllJobField();
       }
       setLoader(false);
       setSubmitting(false);
