@@ -223,6 +223,14 @@ const OtpVerify = () => {
                 >
                   Submit
                 </button>
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => navigate("/")}
+                  className="linear hover:bg-[#2B7A0B]-600 active:bg-[#2B7A0B]-700 dark:bg-[#2B7A0B]-400 dark:hover:bg-[#2B7A0B]-300 dark:active:bg-[#2B7A0B]-200 mt-2 w-full rounded-xl bg-[#2B7A0B] py-[8px] text-lg font-medium text-white transition duration-200 dark:text-white"
+                >
+                  Back To login
+                </button>
               </Form>
             )}
           </Formik>

@@ -3,19 +3,20 @@ import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import {
   createOneApplication,
+  getJobField,
   getOneAppForm,
   updateOneApplication,
 } from "../service/axiosInstance";
 import { errorToast, successToast } from "../toastConfig";
 import LoaderComponent from "./loader";
 import { useLocation, useNavigate } from "react-router-dom";
+import SelectField from "./select";
 
 const JobField = () => {
   const [loader, setLoader] = useState(false);
   let location = useLocation();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
-
   const pathParts = location.pathname.split("/");
   const formAction = pathParts[pathParts.length - 1];
 
@@ -77,7 +78,7 @@ const JobField = () => {
 
   const getApplicationDetails = async (id) => {
     try {
-      setLoader(true);
+      //   setLoader(true);
       const res = await getOneAppForm({ _id: id });
 
       console.log(res.data.data);
@@ -86,15 +87,36 @@ const JobField = () => {
       }
       setLoader(false);
     } catch (error) {
-      setLoader(false);
+      //   setLoader(false);
       errorToast(error?.response?.data?.message || error?.message);
     }
   };
 
-  useEffect(() => {
-    if (formAction != "applicationForm") {
-      getApplicationDetails(formAction);
+  const getAllJobField = async () => {
+    try {
+      //   setLoader(true);
+      const res = await getJobField();
+      if ((res.status = 200)) {
+        setData(res.data.data[0]);
+      }
+      //   setLoader(false);
+    } catch (error) {
+      //   setLoader(false);
+      errorToast(error?.response?.data?.message || error?.message);
     }
+  };
+
+  const init = async () => {
+    setLoader(true);
+    await getAllJobField();
+    if (formAction != "applicationForm") {
+      await getApplicationDetails(formAction);
+    }
+    setLoader(false);
+  };
+
+  useEffect(() => {
+    init();
   }, [formAction]);
 
   return (
@@ -107,7 +129,7 @@ const JobField = () => {
           onSubmit={handleSubmit}
           enableReinitialize
         >
-          {({ isSubmitting, values }) => (
+          {({ isSubmitting, setFieldValue, values }) => (
             <Form>
               <div className="flex flex-grow gap-3">
                 <div className="w-[100%]">
@@ -119,12 +141,16 @@ const JobField = () => {
                       >
                         Job Categorie
                       </label>
-                      <Field
-                        type="text"
-                        id="jobCategorie"
-                        name="jobCategorie"
-                        placeholder="Enter your jobCategorie"
-                        className="h-9 w-full rounded-lg border-2 border-gray-200 p-2 outline-none placeholder:text-lg hover:border-gray-500 focus:border-gray-500 active:border-gray-500"
+                      <SelectField
+                        field="jobCategorie"
+                        options={
+                          data?.jobCategories?.map((e) => ({
+                            label: e,
+                            value: e,
+                          })) || []
+                        }
+                        defaultValue={values.jobCategorie}
+                        setFieldValue={setFieldValue}
                       />
                       <ErrorMessage
                         name="jobCategorie"
@@ -139,12 +165,15 @@ const JobField = () => {
                       >
                         Job Type
                       </label>
-                      <Field
-                        type="text"
-                        id="jobType"
-                        name="jobType"
-                        placeholder="Enter your Job Type"
-                        className="h-9 w-full rounded-lg border-2 border-gray-200 p-2 outline-none placeholder:text-lg hover:border-gray-500 focus:border-gray-500 active:border-gray-500"
+                      <SelectField
+                        field="jobType"
+                        options={
+                          data?.jobTypes?.map((e) => ({
+                            label: e,
+                            value: e,
+                          })) || []
+                        }
+                        setFieldValue={setFieldValue}
                       />
                       <ErrorMessage
                         name="jobType"

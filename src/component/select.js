@@ -1,15 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Select from "react-select";
 
-const SelectField = ({ field, setFieldValue, options, ...props }) => {
+const SelectField = ({
+  field,
+  setFieldValue,
+  defaultValue = "",
+  options,
+  ...props
+}) => {
   const [selectedVal, setSelectedVal] = useState("");
+  useEffect(() => {
+    if (selectedVal === null) {
+      if (typeof defaultValue === "string") {
+        setSelectedVal(options.find((e) => e.value === defaultValue) || null);
+      }
+    }
+
+    if (!defaultValue) {
+      setSelectedVal(options.find((e) => e.value === defaultValue) || null);
+    }
+  }, [defaultValue, options, selectedVal]);
   return (
     <Select
       {...props}
       name={field}
       id={field}
       value={selectedVal}
-      placeholder="Select type"
+      placeholder={`Select ${field}`}
       options={options}
       // defaultValue={options.find((e: any) => defaultValue == e.value)}
       // defaultInputValue={defaultValue}
