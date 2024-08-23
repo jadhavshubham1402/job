@@ -15,6 +15,7 @@ import ApplicationStatus from "./component/ApplicationStatus";
 import ApplicationList from "./component/applicationList";
 import JobField from "./component/jobField";
 import AdminPanel from "./component/adminPanel";
+import UserDetails from "./component/userDetails";
 
 function App() {
   let persistor = persistStore(store);
@@ -30,9 +31,14 @@ function App() {
               <Route path="/register" element={<RegisterForm />} />
               <Route element={<ProtectedRoute />}>
                 <Route path="/admin" element={<AdminPanel />}>
+                  <Route path="/admin/userDetails" element={<UserDetails />} />
                   <Route
                     path="/admin/applicationList"
                     element={<ApplicationList />}
+                  />
+                  <Route
+                    path="/admin/applicationForm/:id"
+                    element={<ApplicationForm />}
                   />
                   <Route
                     path="/admin/applicationForm"

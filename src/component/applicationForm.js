@@ -1,45 +1,70 @@
 import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { createOneApplication } from "../service/axiosInstance";
+import {
+  createOneApplication,
+  getOneAppForm,
+  updateOneApplication,
+} from "../service/axiosInstance";
 import { errorToast, successToast } from "../toastConfig";
 import LoaderComponent from "./loader";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const JobField = () => {
   const [loader, setLoader] = useState(false);
+  let location = useLocation();
+  const navigate = useNavigate();
+  const [data, setData] = useState(null);
+
+  const pathParts = location.pathname.split("/");
+  const formAction = pathParts[pathParts.length - 1];
+
   const initialValues = {
-    jobCategorie: "",
-    jobType: "",
-    title: "",
-    companyDetails: "",
-    tags: "",
-    skills: "",
-    experienceRequired: "",
-    description: "",
-    salary: "",
-    additionalField: [],
+    jobCategorie: data?.jobCategorie || "",
+    jobType: data?.jobType || "",
+    title: data?.title || "",
+    companyDetails: data?.companyDetails || "",
+    tags: data?.tags || "",
+    skills: data?.skills || [""],
+    experienceRequired: data?.experienceRequired || "",
+    description: data?.description || "",
+    salary: data?.salary || "",
+    additionalField: data?.additionalField || [],
   };
 
   const validationSchema = Yup.object().shape({
-    jobCategories: Yup.string().required("Job Categories is required"),
-    jobTypes: Yup.string().required("Job Types is required"),
+    jobCategorie: Yup.string().required("Job Categories is required"),
+    jobType: Yup.string().required("Job Types is required"),
     title: Yup.string().required("title is required"),
     companyDetails: Yup.string().required("companyDetails is required"),
     tags: Yup.string().required("tags is required"),
-    skills: Yup.string().required("skills is required"),
+    skills: Yup.array().of(Yup.string().required("Skill is required")),
     experienceRequired: Yup.string().required("experienceRequired is required"),
     description: Yup.string().required("description is required"),
     salary: Yup.string().required("salary is required"),
-    additionalField: Yup.string().required("additionalField is required"),
+    // additionalField: Yup.string().required("additionalField is required"),
   });
 
-  const handleLogin = async (values, { setSubmitting }) => {
+  const handleSubmit = async (values, { setSubmitting }) => {
     try {
       setLoader(true);
 
-      const res = await createOneApplication(values);
+      let res;
+
+      if (formAction == "applicationForm") {
+        res = await createOneApplication(values);
+      } else {
+        values = { ...values, _id: formAction };
+        res = await updateOneApplication(values);
+      }
+
       if (res.status == 200) {
-        successToast(res.data.message);
+        successToast(
+          formAction == "applicationForm"
+            ? "Application Added successfully"
+            : "application updated successfully"
+        );
+        navigate("/admin/applicationList");
       }
       setLoader(false);
       setSubmitting(false);
@@ -50,6 +75,28 @@ const JobField = () => {
     }
   };
 
+  const getApplicationDetails = async (id) => {
+    try {
+      setLoader(true);
+      const res = await getOneAppForm({ _id: id });
+
+      console.log(res.data.data);
+      if ((res.status = 200)) {
+        setData(res.data.data);
+      }
+      setLoader(false);
+    } catch (error) {
+      setLoader(false);
+      errorToast(error?.response?.data?.message || error?.message);
+    }
+  };
+
+  useEffect(() => {
+    if (formAction != "applicationForm") {
+      getApplicationDetails(formAction);
+    }
+  }, [formAction]);
+
   return (
     <>
       {loader && <LoaderComponent />}
@@ -57,7 +104,8 @@ const JobField = () => {
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
-          onSubmit={handleLogin}
+          onSubmit={handleSubmit}
+          enableReinitialize
         >
           {({ isSubmitting, values }) => (
             <Form>
@@ -166,26 +214,6 @@ const JobField = () => {
                     </div>
                     <div className="mb-3">
                       <label
-                        htmlFor="skills"
-                        className="mb-1 block text-lg font-medium text-gray-800"
-                      >
-                        Skills
-                      </label>
-                      <Field
-                        type="text"
-                        id="skills"
-                        name="skills"
-                        placeholder="Enter your Skills"
-                        className="h-9 w-full rounded-lg border-2 border-gray-200 p-2 outline-none placeholder:text-lg hover:border-gray-500 focus:border-gray-500 active:border-gray-500"
-                      />
-                      <ErrorMessage
-                        name="skills"
-                        component="div"
-                        className="mt-1 text-lg text-red-600"
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label
                         htmlFor="experienceRequired"
                         className="mb-1 block text-lg font-medium text-gray-800"
                       >
@@ -226,26 +254,6 @@ const JobField = () => {
                     </div>
                     <div className="mb-3">
                       <label
-                        htmlFor="jobCategorie"
-                        className="mb-1 block text-lg font-medium text-gray-800"
-                      >
-                        Job Categorie
-                      </label>
-                      <Field
-                        type="text"
-                        id="jobCategorie"
-                        name="jobCategorie"
-                        placeholder="Enter your jobCategorie"
-                        className="h-9 w-full rounded-lg border-2 border-gray-200 p-2 outline-none placeholder:text-lg hover:border-gray-500 focus:border-gray-500 active:border-gray-500"
-                      />
-                      <ErrorMessage
-                        name="jobCategorie"
-                        component="div"
-                        className="mt-1 text-lg text-red-600"
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label
                         htmlFor="salary"
                         className="mb-1 block text-lg font-medium text-gray-800"
                       >
@@ -265,6 +273,51 @@ const JobField = () => {
                       />
                     </div>
                   </div>
+
+                  <label
+                    htmlFor="Skills"
+                    className="mb-1 block text-lg font-medium text-gray-800"
+                  >
+                    Skills
+                  </label>
+                  <FieldArray name="skills">
+                    {({ remove, push }) => (
+                      <div>
+                        {values.skills.map((skill, index) => (
+                          <div
+                            key={index}
+                            className="relative my-1 flex  w-full gap-3 bg-gray-50 py-3 sm:grid-cols-2 lg:grid-cols-2"
+                          >
+                            <Field
+                              name={`skills[${index}]`}
+                              placeholder="Enter a skill"
+                              className="w-full my-1 rounded-lg placeholder:text-lg border-2 border-gray-200 p-2 hover:border-gray-500 focus:border-gray-500"
+                            />
+                            <ErrorMessage
+                              name={`skills${index}`}
+                              component="div"
+                              className="mt-1 text-lg text-red-600"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => remove(index)}
+                              className="secondary absolute -right-3 -top-3 my-auto h-10 w-10 rounded-md border-2 bg-red-600 text-lg text-white shadow-lg"
+                            >
+                              X
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => push("")}
+                          className={`linear text-nowrap rounded-xl px-4 py-2 text-lg font-medium bg-[rgba(43,122,11,5)] text-white`}
+                        >
+                          Add Skill
+                        </button>
+                      </div>
+                    )}
+                  </FieldArray>
+
                   <div className="my-4 w-full">
                     <div className="my-3 text-2xl font-bold">
                       Additional Field

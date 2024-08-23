@@ -12,7 +12,7 @@ function AdminPanel() {
     if (user.type == "admin") {
       navigate("applicationList");
     } else {
-      navigate("applicationList");
+      navigate("userDetails");
     }
   }, [user]);
 

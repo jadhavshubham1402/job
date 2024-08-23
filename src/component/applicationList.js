@@ -7,18 +7,22 @@ import {
 } from "../service/axiosInstance";
 import { errorToast, successToast } from "../toastConfig";
 import LoaderComponent from "./loader";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const ApplicationList = () => {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [loader, setLoader] = useState(false);
+  const { user } = useSelector((store) => store.auth);
+  const navigate = useNavigate();
 
   const handleSubmit = async (id) => {
     try {
       setLoader(true);
       const res = await createApplicationStatus({ applicationId: id });
       if (res.status == 200) {
-        successToast("Login Successfully");
+        successToast("Applied Successfully");
       }
       setLoader(false);
     } catch (error) {
@@ -63,7 +67,7 @@ const ApplicationList = () => {
               >
                 <div className="px-6 py-4">
                   <div className="font-bold text-xl mb-2">
-                    title:{" "}
+                    Title:{" "}
                     <span className="font-semibold text-lg mx-2">
                       {e.title}
                     </span>
@@ -74,16 +78,59 @@ const ApplicationList = () => {
                       {e.companyDetails}
                     </span>
                   </div>
+                  <div className="font-bold text-xl mb-2">
+                    Tags:{" "}
+                    <span className="font-semibold text-lg mx-2">{e.tags}</span>
+                  </div>
+                  <div className="font-bold text-xl mb-2">
+                    Skills:{" "}
+                    {e.skills.map((e) => {
+                      return (
+                        <span className="font-semibold text-lg mx-2">{e},</span>
+                      );
+                    })}
+                  </div>
+                  <div className="font-bold text-xl mb-2">
+                    Experience Required:{" "}
+                    <span className="font-semibold text-lg mx-2">
+                      {e.experienceRequired}
+                    </span>
+                  </div>
+                  <div className="font-bold text-xl mb-2">
+                    Description:{" "}
+                    <span className="font-semibold text-lg mx-2">
+                      {e.description}
+                    </span>
+                  </div>
+                  <div className="font-bold text-xl mb-2">
+                    salary:{" "}
+                    <span className="font-semibold text-lg mx-2">
+                      {e.salary}
+                    </span>
+                  </div>
                 </div>
                 <div className="px-6 py-4">
-                  <button
-                    type="submit"
-                    onClick={() => handleSubmit(e._id)}
-                    // disabled={isSubmitting}
-                    className="linear text-gray-900 bg-blue-400 hover:bg-blue-800 active:bg-blue-900 hover:text-white active:text-white mt-2 w-full rounded-xl  py-[8px] text-lg font-medium"
-                  >
-                    Apply
-                  </button>
+                  {user.type == "admin" ? (
+                    <button
+                      type="submit"
+                      onClick={() =>
+                        navigate(`/admin/applicationForm/${e._id}`)
+                      }
+                      // disabled={isSubmitting}
+                      className="linear text-gray-900 bg-blue-400 hover:bg-blue-800 active:bg-blue-900 hover:text-white active:text-white mt-2 w-full rounded-xl  py-[8px] text-lg font-medium"
+                    >
+                      Edit
+                    </button>
+                  ) : (
+                    <button
+                      type="submit"
+                      onClick={() => handleSubmit(e._id)}
+                      // disabled={isSubmitting}
+                      className="linear text-gray-900 bg-blue-400 hover:bg-blue-800 active:bg-blue-900 hover:text-white active:text-white mt-2 w-full rounded-xl  py-[8px] text-lg font-medium"
+                    >
+                      Apply
+                    </button>
+                  )}
                 </div>
               </div>
             );

@@ -32,10 +32,30 @@ export const createOneApplication = (data) => {
   return Axios.post("/api/createOneApplication", data);
 };
 
+export const updateOneApplication = (data) => {
+    return Axios.post("/api/updateOneApplication", data);
+  };
+
+export const getOneAppForm = (data) => {
+  return Axios.post("/api/getOneAppForm", data);
+};
+
 export const createApplicationStatus = (data) => {
   return Axios.post("/api/createApplicationStatus", data);
 };
 
+export const updateOneApplicationStatus = (data) => {
+  return Axios.post("/api/updateOneApplicationStatus", data);
+};
+
 export const getApplication = (data) => {
   return Axios.post("/api/getApplication", data);
+};
+
+export const getAllApplicationStatus = (data) => {
+  return Axios.post("/api/getAllApplicationStatus", data);
+};
+
+export const createResume = (data) => {
+  return Axios.post("/api/createResume", data);
 };

@@ -10,14 +10,24 @@ function Sidebar() {
     <nav className="bg-gray-800 text-white w-64 h-full p-4">
       <ul>
         {user.type != "admin" && (
-          <li>
-            <Link
-              to="/admin/applicationList"
-              className="block py-2 px-4 hover:bg-gray-700 rounded"
-            >
-              Application Submit
-            </Link>
-          </li>
+          <>
+            <li>
+              <Link
+                to="/admin/userDetails"
+                className="block py-2 px-4 hover:bg-gray-700 rounded"
+              >
+                User Details
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/admin/applicationList"
+                className="block py-2 px-4 hover:bg-gray-700 rounded"
+              >
+                Jobs
+              </Link>
+            </li>
+          </>
         )}
         {user.type == "admin" && (
           <>
@@ -35,6 +45,14 @@ function Sidebar() {
                 className="block py-2 px-4 hover:bg-gray-700 rounded"
               >
                 Application Form
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/admin/applicationList"
+                className="block py-2 px-4 hover:bg-gray-700 rounded"
+              >
+                Jobs
               </Link>
             </li>
             <li>
